@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Neuro-Symbolic Compliance: Integrating LLMs and SMT Solvers for Automated Financial Legal Analysis"
+version: "0.1.0"
+authors:
+  - family-names: Hsia
+    given-names: Yung-Shen
+  - family-names: Yu
+    given-names: Fang
+  - family-names: Jiang
+    given-names: Jie-Hong Roland
+date-released: "2026-06-14"
+license: MIT
