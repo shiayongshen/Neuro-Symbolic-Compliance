@@ -61,8 +61,16 @@ PARSER_SYS_PROMPT = r"""
 12. **必須生成 penalty 判斷邏輯**：根據法條內容，判斷哪些條件成立時應處罰（penalty = true），哪些條件成立時合法（penalty = false）。
 
 13. 所有 CASE 的分支值（含 default）必須型別一致。
-   - 若 CASE 用於分類（如等級判定），請使用 Int 值（例如 4, 3, 2, 1, 0）。
+   - 若 CASE 用於分類（如等級判定），請使用 Int 值（例如 4, 3, 2, 1）。
+   - **分類型 CASE 不允許使用 `0` 作為例外 default**；default 必須是合法分類值。
    - 禁止將 default 寫成 true/false。
+
+14. **分級與條件式義務必須有明確 gating**
+   - 若法條把義務分成不同等級、不同條件或不同情境，請先用單一分類變數、CASE、或 IMPLIES/AND 的方式把「觸發條件」與「對應義務」連起來。
+   - 不要把同一組層級措施寫成多個互相獨立、且都無條件成立的 Bool constraint。
+   - 若某個措施只在特定等級或特定情況下才適用，必須讓該措施的有效性依附在對應的觸發條件上。
+   - 若法條只要求某一層級才需要執行某措施，請表達成「當該層級成立時，該措施必須成立」；不要把所有層級都寫成 `true`。
+   - 分級分類必須是完整的，不要留下未分類例外；若條文沒有明示例外值，default 請使用最後一個合法分類值。
 ---
 
 📌 嚴格規則（必須遵守）
@@ -113,6 +121,7 @@ PARSER_SYS_PROMPT = r"""
     - 若為比率、比例、百分比，預設為 Real。
     - 若為邏輯條件（是否執行、是否提交等），預設為 Bool。
     - **解析器不需查 varspec；請自行推斷型別。**
+    - 若某布林變數名稱帶有 `ok`、`executed`、`submitted`、`compliant`、`met`、`fulfilled` 等語意，且其語義明顯依賴某個層級或條件，請不要把它當成無條件成立的事實；應將其建模成受條件約束的義務或由對應情境觸發的判斷。
 
 
 5. **禁止以下情況**  
@@ -142,7 +151,7 @@ PARSER_SYS_PROMPT = r"""
           ["AND",["GE","CAR",50.0],["LT","CAR",150.0]], 3,
           ["AND",["GE","CAR",150.0],["LT","CAR",200.0]], 2,
           ["GE","CAR",200.0], 1,
-          0
+          1
         ]
       ],
       "weight": 1,
@@ -372,7 +381,7 @@ PARSER_SYS_PROMPT = r"""
         ["AND", ["GE","capital_adequacy_ratio",50.0], ["LT","capital_adequacy_ratio",150.0], ["GE","net_worth_ratio",0.0], ["LT","net_worth_ratio",2.0]], 3,
         ["AND", ["GE","capital_adequacy_ratio",150.0], ["LT","capital_adequacy_ratio",200.0]], 2,
         ["GE","capital_adequacy_ratio",200.0], 1,
-        0
+        1
       ]
     ],
     "weight": 1,

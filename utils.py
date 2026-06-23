@@ -152,7 +152,10 @@ def z3_optimize_case(constraints, facts, z3_vars, build_expr):
         for k, v in facts.items():
             try:
                 fact_expr = build_expr(["EQ", ["VAR", k], v], z3_vars)
-                opt.add_soft(fact_expr, weight=1, id=f"fact_{k}")
+                # Keep all soft facts in a single objective so the result
+                # reflects the total violation count rather than lexicographic
+                # precedence across fact ids.
+                opt.add_soft(fact_expr, weight=1)
             except Exception as e:
                 return False, f"Failed to build fact {k}={v}: {e}"
 

@@ -112,12 +112,15 @@ def solve_case(constraint_spec, facts, varspecs):
         for c in constraint_spec:
             if c.get('weight', 0) == 0:
                 expr = build_expr(c['expr'], z3_vars)
-                opt.add_soft(expr, weight=1, id=c.get('id', f"soft_{constraint_spec.index(c)}"))
+                # Keep all soft constraints in the same objective to avoid
+                # lexicographic ordering across per-constraint ids.
+                opt.add_soft(expr, weight=1)
         
         # 添加 facts as soft constraints
         for k, v in facts.items():
             fact_expr = build_expr(["EQ", ["VAR", k], v], z3_vars)
-            opt.add_soft(fact_expr, weight=1, id=f"fact_{k}")
+            # Facts participate in the same aggregate soft objective.
+            opt.add_soft(fact_expr, weight=1)
         
         # 求解
         result = opt.check()
